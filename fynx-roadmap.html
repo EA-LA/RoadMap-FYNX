@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>FYNX Roadmap</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: #fafafa;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        /* Library desk scene */
+        .museum-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse 120% 80% at 30% 20%, rgba(255, 230, 180, 0.4), transparent 60%),
+                radial-gradient(ellipse 100% 100% at 70% 80%, rgba(139, 90, 43, 0.15), transparent 50%),
+                linear-gradient(180deg, #2a1f15 0%, #3d2f20 40%, #4a3a28 100%);
+            z-index: 0;
+        }
+
+        .museum-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(ellipse at 50% -20%, rgba(255, 220, 150, 0.2), transparent 50%);
+            opacity: 0.6;
+        }
+
+        /* Wood desk surface */
+        .museum-bg::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75%;
+            background: 
+                repeating-linear-gradient(90deg, 
+                    rgba(101, 67, 33, 0.03) 0px, 
+                    rgba(101, 67, 33, 0.03) 2px, 
+                    transparent 2px, 
+                    transparent 8px),
+                linear-gradient(180deg, 
+                    rgba(92, 64, 51, 0.3) 0%, 
+                    rgba(76, 54, 42, 0.5) 50%,
+                    rgba(61, 43, 31, 0.6) 100%);
+        }
+
+        /* Blurred library background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 40%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(139, 90, 43, 0.08), transparent 40%),
+                radial-gradient(ellipse at 80% 40%, rgba(101, 67, 33, 0.06), transparent 35%),
+                radial-gradient(ellipse at 50% 20%, rgba(76, 54, 42, 0.05), transparent 45%);
+            filter: blur(40px);
+            opacity: 0.4;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Main container */
+        .map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: grab;
+        }
+
+        .map-container.grabbing {
+            cursor: grabbing;
+        }
+
+        /* Parchment wrapper - handles the drop animation */
+        .parchment-wrapper {
+            position: absolute;
+            top: -150%;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: parchmentDrop 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            transform-origin: center top;
+        }
+
+        @keyframes parchmentDrop {
+            0% {
+                top: -150%;
+                transform: translateX(-50%) rotate(-5deg) scale(0.3);
+                opacity: 0;
+            }
+            60% {
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%) rotate(0deg) scale(0.95);
+                opacity: 1;
+            }
+            100% {
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Parchment canvas - this is what users pan/zoom */
+        .parchment {
+            position: relative;
+            width: 1600px;
+            height: 1200px;
+            background: 
+                radial-gradient(ellipse at 30% 40%, rgba(210, 180, 140, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 60%, rgba(222, 184, 135, 0.1) 0%, transparent 50%),
+                linear-gradient(135deg, #f4e8d8 0%, #f0e5d5 25%, #ebe0d0 50%, #f0e5d5 75%, #f4e8d8 100%);
+            border-radius: 8px;
+            box-shadow: 
+                0 50px 120px rgba(0, 0, 0, 0.6),
+                0 20px 60px rgba(0, 0, 0, 0.4),
+                0 10px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5),
+                inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+            transform-origin: center center;
+            transition: none;
+        }
+
+        /* Bottom-right corner curl */
+        .parchment::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, transparent 45%, rgba(210, 180, 140, 0.4) 50%, rgba(180, 150, 110, 0.6) 100%);
+            border-radius: 0 0 8px 0;
+            box-shadow: 
+                -2px -2px 8px rgba(0, 0, 0, 0.15),
+                inset 0 0 30px rgba(101, 67, 33, 0.15);
+            pointer-events: none;
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        }
+
+        /* Paper texture overlay */
+        .parchment::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 119, 101, 0.03) 2px, rgba(139, 119, 101, 0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 119, 101, 0.03) 2px, rgba(139, 119, 101, 0.03) 4px);
+            opacity: 0.4;
+            pointer-events: none;
+            border-radius: 8px;
+        }
+
+        /* SVG path layer */
+        .map-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .treasure-path {
+            fill: none;
+            stroke: #5d4037;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            stroke-dasharray: 10, 5;
+            opacity: 0.7;
+            filter: url(#inkBlur);
+        }
+
+        /* Map decorative elements */
+        .map-title {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel', serif;
+            font-size: 52px;
+            font-weight: 700;
+            color: #3e2723;
+            letter-spacing: 4px;
+            text-align: center;
+            text-shadow: 
+                1px 1px 0 rgba(255, 255, 255, 0.3),
+                0 2px 4px rgba(0, 0, 0, 0.1);
+            pointer-events: none;
+        }
+
+        .map-subtitle {
+            position: absolute;
+            top: 115px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Crimson Text', serif;
+            font-size: 18px;
+            font-style: italic;
+            color: #5d4037;
+            letter-spacing: 1px;
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .map-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid rgba(93, 64, 55, 0.2);
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        .map-border::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            right: 4px;
+            bottom: 4px;
+            border: 1px solid rgba(93, 64, 55, 0.1);
+            border-radius: 2px;
+        }
+
+        /* Compass rose */
+        .compass-rose {
+            position: absolute;
+            bottom: 60px;
+            left: 60px;
+            width: 100px;
+            height: 100px;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* Grid lines */
+        .grid-lines {
+            stroke: rgba(93, 64, 55, 0.08);
+            stroke-width: 0.5;
+        }
+
+        /* Decorative elements container */
+        .map-decorations {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.12;
+        }
+
+        .decoration-tree {
+            position: absolute;
+            font-size: 20px;
+            color: #5d4037;
+        }
+
+        .decoration-mountain {
+            position: absolute;
+            font-size: 16px;
+            color: #5d4037;
+        }
+
+        .decoration-wave {
+            position: absolute;
+            font-size: 14px;
+            color: #5d4037;
+        }
+
+        .decoration-x {
+            position: absolute;
+            font-size: 18px;
+            color: #8b4513;
+            font-weight: bold;
+        }
+
+        /* Roadmap nodes */
+        .node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .node:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            z-index: 10;
+        }
+
+        .node-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle at 30% 30%, #f4e8d8, #d4b896);
+            border: 3px solid #5d4037;
+            border-radius: 50%;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .node:hover .node-circle {
+            box-shadow: 
+                0 0 20px rgba(218, 165, 32, 0.6),
+                0 6px 16px rgba(0, 0, 0, 0.25),
+                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        }
+
+        .node-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: #3e2723;
+            text-align: center;
+            line-height: 1.3;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+            width: 70px;
+            letter-spacing: 0.3px;
+        }
+
+        .node-icon {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .node.visited .node-circle {
+            background: radial-gradient(circle at 30% 30%, #d4b896, #b8956f);
+        }
+
+        .node.visited::after {
+            content: '✓';
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 16px;
+            color: #5d4037;
+            font-weight: bold;
+        }
+
+        /* Special nodes */
+        .node.first::before {
+            content: 'START HERE';
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Cinzel', serif;
+            font-size: 10px;
+            font-weight: 600;
+            color: #8b4513;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            background: rgba(244, 232, 216, 0.9);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #5d4037;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .node.final .node-circle {
+            background: radial-gradient(circle at 30% 30%, #ffd700, #daa520);
+            animation: treasureGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes treasureGlow {
+            0%, 100% {
+                box-shadow: 
+                    0 0 15px rgba(218, 165, 32, 0.4),
+                    0 4px 12px rgba(0, 0, 0, 0.2),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+            }
+            50% {
+                box-shadow: 
+                    0 0 30px rgba(218, 165, 32, 0.7),
+                    0 6px 16px rgba(0, 0, 0, 0.25),
+                    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+            }
+        }
+
+        .node.final::after {
+            content: '✦';
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            font-size: 24px;
+            color: #daa520;
+            animation: sparkle 2s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scale(1) rotate(0deg);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2) rotate(90deg);
+            }
+        }
+
+        /* Info card - parchment style */
+        .info-card {
+            position: fixed;
+            background: 
+                radial-gradient(ellipse at 30% 30%, rgba(244, 232, 216, 1), rgba(240, 229, 213, 1)),
+                linear-gradient(135deg, #f4e8d8 0%, #ebe0d0 100%);
+            border-radius: 8px;
+            padding: 28px 32px;
+            box-shadow: 
+                0 25px 70px rgba(0, 0, 0, 0.5),
+                0 10px 25px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 0 0 1px rgba(93, 64, 55, 0.15);
+            max-width: 420px;
+            z-index: 1000;
+            opacity: 0;
+            transform: scale(0.9) translateY(10px);
+            transition: opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                        transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            border: 2px solid rgba(139, 119, 101, 0.15);
+        }
+
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139, 119, 101, 0.02) 2px, rgba(139, 119, 101, 0.02) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(139, 119, 101, 0.02) 2px, rgba(139, 119, 101, 0.02) 4px);
+            opacity: 0.6;
+            pointer-events: none;
+            border-radius: 6px;
+        }
+
+        .info-card.show {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        .info-card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-card-content {
+            font-family: 'Crimson Text', serif;
+            font-size: 17px;
+            line-height: 1.7;
+            color: #3a3a3a;
+        }
+
+        .info-card-content p {
+            margin-bottom: 10px;
+        }
+
+        .info-card-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 32px;
+            height: 32px;
+            border: 1px solid rgba(93, 64, 55, 0.2);
+            background: rgba(244, 232, 216, 0.9);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #5d4037;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .close-btn:hover {
+            background: rgba(220, 200, 180, 0.9);
+            color: #3e2723;
+            transform: scale(1.1);
+        }
+
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .control-btn {
+            width: 48px;
+            height: 48px;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #333;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .control-btn:hover {
+            background: #f5f5f5;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            font-family: 'Cinzel', serif;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.3);
+            letter-spacing: 2px;
+            z-index: 100;
+            font-weight: 600;
+        }
+
+        /* Helper hint */
+        .helper-hint {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 16px 28px;
+            border-radius: 12px;
+            font-family: 'Crimson Text', serif;
+            font-size: 16px;
+            z-index: 50;
+            animation: hintFade 3s ease-in-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes hintFade {
+            0% {
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .controls {
+                bottom: 20px;
+                right: 20px;
+                gap: 8px;
+            }
+
+            .control-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 18px;
+            }
+
+            .watermark {
+                bottom: 20px;
+                left: 20px;
+                font-size: 12px;
+            }
+
+            .info-card {
+                max-width: calc(100vw - 40px);
+                padding: 24px;
+            }
+
+            .info-card-title {
+                font-size: 20px;
+            }
+
+            .info-card-content {
+                font-size: 15px;
+            }
+        }
+
+        /* Overlay for clicking outside */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="museum-bg"></div>
+
+    <div class="map-container" id="mapContainer">
+        <div class="parchment-wrapper">
+            <div class="parchment" id="parchment">
+                <div class="map-border"></div>
+                <div class="map-title">FYNX ROADMAP</div>
+                <div class="map-subtitle">A blueprint from zero to Wall Street scale</div>
+                
+                <svg class="map-svg" id="mapSvg">
+                    <defs>
+                        <filter id="inkBlur">
+                            <feGaussianBlur in="SourceGraphic" stdDeviation="0.5"/>
+                        </filter>
+                    </defs>
+                    
+                    <!-- Grid lines -->
+                    <g class="grid-lines">
+                        <line x1="100" y1="150" x2="1500" y2="150" />
+                        <line x1="100" y1="350" x2="1500" y2="350" />
+                        <line x1="100" y1="550" x2="1500" y2="550" />
+                        <line x1="100" y1="750" x2="1500" y2="750" />
+                        <line x1="100" y1="950" x2="1500" y2="950" />
+                        <line x1="300" y1="150" x2="300" y2="1050" />
+                        <line x1="600" y1="150" x2="600" y2="1050" />
+                        <line x1="900" y1="150" x2="900" y2="1050" />
+                        <line x1="1200" y1="150" x2="1200" y2="1050" />
+                    </g>
+                    
+                    <path class="treasure-path" id="treasurePath" d=""></path>
+                </svg>
+                
+                <!-- Compass rose -->
+                <svg class="compass-rose" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#5d4037" stroke-width="1"/>
+                    <circle cx="50" cy="50" r="35" fill="none" stroke="#5d4037" stroke-width="0.5"/>
+                    <path d="M 50 5 L 55 45 L 50 50 L 45 45 Z" fill="#5d4037"/>
+                    <path d="M 50 95 L 55 55 L 50 50 L 45 55 Z" fill="#5d4037" opacity="0.5"/>
+                    <path d="M 5 50 L 45 55 L 50 50 L 45 45 Z" fill="#5d4037" opacity="0.5"/>
+                    <path d="M 95 50 L 55 55 L 50 50 L 55 45 Z" fill="#5d4037" opacity="0.5"/>
+                    <text x="50" y="18" font-family="Cinzel, serif" font-size="12" text-anchor="middle" fill="#5d4037">N</text>
+                    <text x="50" y="92" font-family="Cinzel, serif" font-size="10" text-anchor="middle" fill="#5d4037" opacity="0.6">S</text>
+                    <text x="15" y="55" font-family="Cinzel, serif" font-size="10" text-anchor="middle" fill="#5d4037" opacity="0.6">W</text>
+                    <text x="85" y="55" font-family="Cinzel, serif" font-size="10" text-anchor="middle" fill="#5d4037" opacity="0.6">E</text>
+                </svg>
+                
+                <!-- Decorative elements -->
+                <div class="map-decorations">
+                    <div class="decoration-tree" style="top: 850px; left: 100px;">🌲</div>
+                    <div class="decoration-tree" style="top: 900px; left: 140px;">🌲</div>
+                    <div class="decoration-tree" style="top: 920px; left: 1400px;">🌲</div>
+                    <div class="decoration-mountain" style="top: 950px; left: 700px;">⛰</div>
+                    <div class="decoration-mountain" style="top: 980px; left: 750px;">⛰</div>
+                    <div class="decoration-wave" style="top: 160px; right: 80px;">〰</div>
+                    <div class="decoration-wave" style="top: 175px; right: 85px;">〰</div>
+                    <div class="decoration-wave" style="top: 190px; right: 80px;">〰</div>
+                    <div class="decoration-x" style="top: 380px; left: 280px;">✕</div>
+                    <div class="decoration-x" style="top: 620px; left: 520px;">✕</div>
+                    <div class="decoration-x" style="top: 440px; left: 1320px;">✕</div>
+                </div>
+                
+                <div id="nodesContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" id="zoomIn" title="Zoom In">+</button>
+        <button class="control-btn" id="zoomOut" title="Zoom Out">−</button>
+        <button class="control-btn" id="resetView" title="Reset View">⟲</button>
+    </div>
+
+    <div class="watermark">FYNX ROADMAP</div>
+
+    <div class="helper-hint">Scroll or pinch to zoom • Drag to explore</div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="info-card" id="infoCard">
+        <button class="close-btn" id="closeCard">×</button>
+        <div class="info-card-title" id="cardTitle"></div>
+        <div class="info-card-content" id="cardContent"></div>
+    </div>
+
+    <script>
+        // ========== ROADMAP DATA ==========
+        const ROADMAP_DATA = [
+            {
+                id: 'fynx',
+                label: 'FYNX',
+                x: 180,
+                y: 200,
+                details: [
+                    'Build the core dashboard foundation.',
+                    'Include Calculator, News, and Trading Journal.',
+                    'Make it fast, clean, and real product quality.',
+                    'This is the base layer for everything else.'
+                ]
+            },
+            {
+                id: 'fynx1',
+                label: 'FYNX 1\nEntry Trading',
+                x: 340,
+                y: 180,
+                details: [
+                    'Build a simple entry trading panel like MetaTrader-style execution.',
+                    'Focus on placing trades, risk controls, and basic order types.',
+                    'Keep it lightweight and easy for beginners.',
+                    'This becomes the first "trading engine" UI.'
+                ]
+            },
+            {
+                id: 'fynx2',
+                label: 'FYNX 2\nTrading Chart',
+                x: 500,
+                y: 220,
+                details: [
+                    'Add advanced charts like TradingView-style experience.',
+                    'Include indicators, drawing tools, timeframes, and watchlist.',
+                    'Make it smooth and interactive with real-time feel.',
+                    'This becomes the main visual trading workstation.'
+                ]
+            },
+            {
+                id: 'fynx3',
+                label: 'FYNX 3\nBroker Layer',
+                x: 650,
+                y: 190,
+                details: [
+                    'Add broker infrastructure conceptually as the next step.',
+                    'Show that FYNX becomes the platform where trades route and execute.',
+                    'Prepare for accounts, balances, and compliance-ready structure.',
+                    'This is where FYNX becomes a real brokerage product.'
+                ]
+            },
+            {
+                id: 'fynx4',
+                label: 'FYNX 4\nFunded Platform',
+                x: 810,
+                y: 240,
+                details: [
+                    'Create a funded-trader platform concept (challenges, rules, payouts).',
+                    'Track performance, drawdown, and objectives.',
+                    'Build trust systems and clear dashboards.',
+                    'This unlocks scale with traders worldwide.'
+                ]
+            },
+            {
+                id: 'fynx5',
+                label: 'FYNX 5\nMarket News Hub',
+                x: 950,
+                y: 210,
+                details: [
+                    'Build a market news hub like ForexFactory-style calendar/news flow.',
+                    'Show events, impact levels, filters, and summaries.',
+                    'Keep it fast and constantly updating.',
+                    'This makes the platform feel alive daily.'
+                ]
+            },
+            {
+                id: 'fynx6',
+                label: 'FYNX 6\nCrypto + Wallet',
+                x: 1100,
+                y: 270,
+                details: [
+                    'Add a crypto layer: wallet, transactions, and transfers.',
+                    'Show that users can store, move, and track crypto inside FYNX.',
+                    'Make it secure and clean with strong UX.',
+                    'This expands FYNX into full finance rails.'
+                ]
+            },
+            {
+                id: 'fynxai',
+                label: 'FYNX AI',
+                x: 1240,
+                y: 240,
+                details: [
+                    'Add an AI layer across the whole ecosystem.',
+                    'AI helps with analysis, education, decision support, and automation.',
+                    'Make it feel like an "AI co-pilot" inside the platform.',
+                    'This becomes the power multiplier for everything.'
+                ]
+            },
+            {
+                id: 'stock',
+                label: 'Stock of\nFYNX',
+                x: 250,
+                y: 480,
+                details: [
+                    'Show the long-term goal of turning FYNX into a public company.',
+                    'Build a brand that becomes a real financial institution.',
+                    'Prepare for big partnerships and serious scale.',
+                    'This is the "public market" endgame milestone.'
+                ]
+            },
+            {
+                id: 'coin',
+                label: 'Coin of\nFYNX',
+                x: 420,
+                y: 520,
+                details: [
+                    'Show the goal of launching a native crypto asset for the ecosystem.',
+                    'Use it for utility, payments, and community growth.',
+                    'Tie it to products so it\'s not just hype.',
+                    'This is the FYNX network expansion milestone.'
+                ]
+            },
+            {
+                id: 'banking',
+                label: 'Start\nBanking',
+                x: 590,
+                y: 500,
+                details: [
+                    'Show the goal of building banking services and accounts.',
+                    'Move beyond tools into real financial products.',
+                    'Build systems that can handle large-scale users.',
+                    'This makes FYNX a real financial backbone.'
+                ]
+            },
+            {
+                id: 'privateequity',
+                label: 'Private\nEquity',
+                x: 760,
+                y: 540,
+                details: [
+                    'Show the goal of owning stakes in companies and building an empire.',
+                    'Use capital to acquire, invest, and scale real businesses.',
+                    'Connect it to the finance ecosystem strategy.',
+                    'This is how FYNX grows beyond one product.'
+                ]
+            },
+            {
+                id: 'investmentbanking',
+                label: 'Investment\nBanking System',
+                x: 950,
+                y: 520,
+                details: [
+                    'Show the goal of building an institutional-grade banking layer.',
+                    'Help big money move, invest, and structure deals.',
+                    'Make it feel like next-generation Wall Street tools.',
+                    'This is the "elite finance" product tier.'
+                ]
+            },
+            {
+                id: 'wallstreet',
+                label: 'Wall Street\nLevel',
+                x: 1140,
+                y: 560,
+                details: [
+                    'Show the goal of reaching the highest finance arena.',
+                    'Compete with the biggest names in the financial industry.',
+                    'Build products enterprises and institutions actually use.',
+                    'This is the ultimate credibility and dominance milestone.'
+                ]
+            }
+        ];
+
+        // ========== STATE ==========
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let currentX = 0;
+        let currentY = 0;
+
+        // ========== ELEMENTS ==========
+        const parchment = document.getElementById('parchment');
+        const mapContainer = document.getElementById('mapContainer');
+        const nodesContainer = document.getElementById('nodesContainer');
+        const infoCard = document.getElementById('infoCard');
+        const overlay = document.getElementById('overlay');
+        const cardTitle = document.getElementById('cardTitle');
+        const cardContent = document.getElementById('cardContent');
+        const treasurePath = document.getElementById('treasurePath');
+
+        // ========== RENDER NODES ==========
+        function renderNodes() {
+            const nodeIcons = ['🏛', '⚔', '📊', '🏦', '💰', '📰', '₿', '🤖', '📈', '🪙', '🏛', '🏢', '💼', '👑'];
+            
+            ROADMAP_DATA.forEach((node, index) => {
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'node';
+                nodeEl.style.left = `${node.x}px`;
+                nodeEl.style.top = `${node.y}px`;
+                nodeEl.dataset.id = node.id;
+
+                if (index === 0) nodeEl.classList.add('first');
+                if (index === ROADMAP_DATA.length - 1) nodeEl.classList.add('final');
+
+                nodeEl.innerHTML = `
+                    <div class="node-circle"></div>
+                    <div class="node-label">${node.label}</div>
+                    <div class="node-icon">${nodeIcons[index] || '📍'}</div>
+                `;
+
+                nodeEl.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    showInfoCard(node, e);
+                    nodeEl.classList.add('visited');
+                });
+
+                nodesContainer.appendChild(nodeEl);
+            });
+
+            // Draw path
+            drawPath();
+        }
+
+        // ========== DRAW PATH ==========
+        function drawPath() {
+            let pathData = `M ${ROADMAP_DATA[0].x} ${ROADMAP_DATA[0].y}`;
+            
+            for (let i = 1; i < ROADMAP_DATA.length; i++) {
+                const prev = ROADMAP_DATA[i - 1];
+                const curr = ROADMAP_DATA[i];
+                
+                // Create smooth curve
+                const midX = (prev.x + curr.x) / 2;
+                const midY = (prev.y + curr.y) / 2;
+                
+                pathData += ` Q ${midX} ${midY - 20}, ${curr.x} ${curr.y}`;
+            }
+            
+            treasurePath.setAttribute('d', pathData);
+        }
+
+        // ========== INFO CARD ==========
+        function showInfoCard(node, event) {
+            cardTitle.textContent = node.label.replace('\n', ' ');
+            cardContent.innerHTML = node.details.map(detail => `<p>${detail}</p>`).join('');
+            
+            // Position card
+            const rect = event.target.getBoundingClientRect();
+            const cardWidth = 420;
+            const cardHeight = 300;
+            
+            let left = rect.left + window.scrollX;
+            let top = rect.bottom + window.scrollY + 20;
+            
+            // Keep card in viewport
+            if (left + cardWidth > window.innerWidth - 40) {
+                left = window.innerWidth - cardWidth - 40;
+            }
+            if (left < 40) {
+                left = 40;
+            }
+            if (top + cardHeight > window.innerHeight - 40) {
+                top = rect.top + window.scrollY - cardHeight - 20;
+            }
+            
+            infoCard.style.left = `${left}px`;
+            infoCard.style.top = `${top}px`;
+            
+            infoCard.classList.add('show');
+            overlay.classList.add('show');
+        }
+
+        function hideInfoCard() {
+            infoCard.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        document.getElementById('closeCard').addEventListener('click', hideInfoCard);
+        overlay.addEventListener('click', hideInfoCard);
+
+        // ========== PAN & ZOOM ==========
+        function updateTransform() {
+            parchment.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        }
+
+        // Mouse/Touch drag
+        mapContainer.addEventListener('mousedown', startDrag);
+        mapContainer.addEventListener('touchstart', startDrag, { passive: false });
+
+        function startDrag(e) {
+            if (e.target.closest('.node') || e.target.closest('.control-btn')) return;
+            
+            isDragging = true;
+            mapContainer.classList.add('grabbing');
+            
+            const clientX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type === 'mousedown' ? e.clientY : e.touches[0].clientY;
+            
+            startX = clientX - currentX;
+            startY = clientY - currentY;
+            
+            e.preventDefault();
+        }
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('touchmove', drag, { passive: false });
+
+        function drag(e) {
+            if (!isDragging) return;
+            
+            const clientX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+            const clientY = e.type === 'mousemove' ? e.clientY : e.touches[0].clientY;
+            
+            currentX = clientX - startX;
+            currentY = clientY - startY;
+            translateX = currentX;
+            translateY = currentY;
+            
+            updateTransform();
+            e.preventDefault();
+        }
+
+        document.addEventListener('mouseup', stopDrag);
+        document.addEventListener('touchend', stopDrag);
+
+        function stopDrag() {
+            isDragging = false;
+            mapContainer.classList.remove('grabbing');
+        }
+
+        // Zoom with wheel
+        mapContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            
+            const delta = e.deltaY > 0 ? -0.1 : 0.1;
+            const newScale = Math.min(Math.max(0.5, scale + delta), 3);
+            
+            if (newScale !== scale) {
+                const rect = mapContainer.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                
+                const scaleRatio = newScale / scale;
+                translateX = mouseX - (mouseX - translateX) * scaleRatio;
+                translateY = mouseY - (mouseY - translateY) * scaleRatio;
+                currentX = translateX;
+                currentY = translateY;
+                
+                scale = newScale;
+                updateTransform();
+            }
+        }, { passive: false });
+
+        // Pinch to zoom (mobile)
+        let initialDistance = 0;
+        let initialScale = 1;
+
+        mapContainer.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialDistance = getDistance(e.touches[0], e.touches[1]);
+                initialScale = scale;
+            }
+        }, { passive: true });
+
+        mapContainer.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                e.preventDefault();
+                const currentDistance = getDistance(e.touches[0], e.touches[1]);
+                const newScale = Math.min(Math.max(0.5, initialScale * (currentDistance / initialDistance)), 3);
+                
+                if (newScale !== scale) {
+                    scale = newScale;
+                    updateTransform();
+                }
+            }
+        }, { passive: false });
+
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // Zoom buttons
+        document.getElementById('zoomIn').addEventListener('click', () => {
+            scale = Math.min(scale + 0.2, 3);
+            updateTransform();
+        });
+
+        document.getElementById('zoomOut').addEventListener('click', () => {
+            scale = Math.max(scale - 0.2, 0.5);
+            updateTransform();
+        });
+
+        document.getElementById('resetView').addEventListener('click', () => {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            currentX = 0;
+            currentY = 0;
+            updateTransform();
+        });
+
+        // ========== INITIALIZE ==========
+        renderNodes();
+        updateTransform();
+    </script>
+</body>
+</html>
